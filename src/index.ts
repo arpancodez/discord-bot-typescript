@@ -19,4 +19,4 @@ client.commands = new Collection();
 ready(client);
 interactionCreate(client);
 
-client.login(process.env.TOKEN);
+client.login(process.env.TOKEN);//put your bot token in .env
