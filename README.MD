@@ -19,6 +19,7 @@ A professional multipurpose Discord moderation bot template written in TypeScrip
 
 ### Prerequisites
 
+- rename .env.example to .env
 - Node.js and npm installed  
 - Discord bot token from the Discord Developer Portal  
 - Basic TypeScript knowledge  
