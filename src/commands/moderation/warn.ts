@@ -1,10 +1,10 @@
-// src/commands/moderation/warn.ts
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, PermissionsBitField } from "discord.js";
+import { addStrike, getStrikes } from "../../util/strikeManager";
 
 export default {
   data: new SlashCommandBuilder()
     .setName("warn")
-    .setDescription("Warn a member with a reason.")
+    .setDescription("Warn a member (adds a strike).")
     .addUserOption(option =>
       option.setName("target")
         .setDescription("The member to warn")
@@ -17,22 +17,26 @@ export default {
     ),
 
   async execute(interaction: any) {
+    if (!interaction.member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
+      return interaction.reply({ content: "You don’t have permission to warn members.", ephemeral: true });
+    }
+
     const target = interaction.options.getUser("target");
     const reason = interaction.options.getString("reason") || "No reason provided";
 
-    // Check if a user is trying to warn themselves
-    if (target.id === interaction.user.id) {
-      return interaction.reply({ content: "You cannot warn yourself!", ephemeral: true });
-    }
+    const strikes = addStrike(target.id, interaction.user.tag, reason);
 
-    await interaction.reply({
-      content: `⚠️ ${target} has been warned.\n**Reason:** ${reason}`
-    });
+    await interaction.reply(`⚠️ ${target.tag} has been warned. They now have **${strikes.length} strike(s)**.`);
 
-    // You could log this to a moderation log channel instead
-    const logChannel = interaction.guild.channels.cache.find((ch: any) => ch.name === "mod-logs");
-    if (logChannel) {
-      (logChannel as any).send(`⚠️ ${target.tag} was warned by ${interaction.user.tag}. Reason: ${reason}`);
+    // 🔥 Auto-action: 3 strikes = timeout (mute for 10 minutes)
+    if (strikes.length >= 3) {
+      try {
+        const member = await interaction.guild.members.fetch(target.id);
+        await member.timeout(10 * 60 * 1000, "Reached 3 strikes");
+        await interaction.followUp(`🚫 ${target.tag} has been muted for 10 minutes (3 strikes).`);
+      } catch {
+        await interaction.followUp("⚠️ Could not timeout the user automatically.");
+      }
     }
   }
 };
