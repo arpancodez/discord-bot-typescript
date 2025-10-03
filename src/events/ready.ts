@@ -12,7 +12,7 @@ export default (client: Client) => {
         client.commands.set(command.data.name, command);
       }
     }
-    console.log(`Ready! Logged in as ${client.user?.tag}`);
+    console.log(`Ready! Logged in as ${client.user?.tag} - Made by Arpan`);
   });
 };
 
