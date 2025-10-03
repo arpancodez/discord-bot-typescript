@@ -4,7 +4,7 @@ import { Events } from "discord.js";
 export default {
   name: Events.GuildMemberAdd,
   async execute(member: any) {
-    const channelId = "WELCOME_CHANNEL_ID"; // replace with your welcome channel
+    const channelId = "WELCOME_CHANNEL_ID"; // replace with your welcome channel of discord
     const roleId = "AUTOROLE_ID"; // replace with default role
 
     const channel = member.guild.channels.cache.get(channelId);
